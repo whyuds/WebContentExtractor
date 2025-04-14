@@ -1,0 +1,86 @@
+/**
+ * WebContentExtractor - Styles
+ * CSS for highlighting elements and displaying toast notifications
+ */
+
+/* Highlight styles */
+.wce-highlight {
+  position: absolute;
+  background-color: rgba(66, 133, 244, 0.2);
+  border: 2px solid #4285f4;
+  z-index: 9999;
+  pointer-events: none;
+  box-sizing: border-box;
+  transition: opacity 0.3s ease;
+}
+
+.wce-temp-highlight {
+  position: absolute;
+  background-color: rgba(255, 165, 0, 0.2);
+  border: 2px dashed orange;
+  z-index: 9999;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* Toast notification styles */
+.wce-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  z-index: 10000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  animation: wce-fade-in 0.3s ease-in-out;
+}
+
+@keyframes wce-fade-in {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Selection mode cursor */
+body.wce-selection-mode {
+  cursor: pointer !important;
+}
+
+/* Control panel styles */
+.wce-control-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  padding: 10px;
+  z-index: 10001;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.wce-control-panel button {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 5px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.wce-control-panel button:hover {
+  background-color: #3367d6;
+}
+
+.wce-control-panel button.wce-cancel {
+  background-color: #f44336;
+}
+
+.wce-control-panel button.wce-cancel:hover {
+  background-color: #d32f2f;
+}

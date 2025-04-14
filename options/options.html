@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebContentExtractor Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>WebContentExtractor</h1>
+      <p>Manage your content extraction rules</p>
+    </header>
+    
+    <div class="domain-selector">
+      <label for="domainSelect">Select Domain:</label>
+      <select id="domainSelect">
+        <option value="">Loading domains...</option>
+      </select>
+    </div>
+    
+    <div class="rules-container">
+      <div class="rules-header">
+        <h2>Rules for <span id="currentDomain">selected domain</span></h2>
+        <div class="rules-actions">
+          <button id="exportRulesBtn" class="btn secondary">Export Rules</button>
+          <button id="importRulesBtn" class="btn secondary">Import Rules</button>
+        </div>
+      </div>
+      
+      <div id="rulesList" class="rules-list">
+        <div class="loading">Select a domain to view rules</div>
+      </div>
+      
+      <div id="noRules" class="no-rules hidden">
+        <p>No rules saved for this domain.</p>
+      </div>
+    </div>
+    
+    <div class="global-settings">
+      <h2>Global Settings</h2>
+      <div class="setting-item">
+        <label for="autoExtractToggle">Auto-extract content on page load:</label>
+        <input type="checkbox" id="autoExtractToggle">
+      </div>
+    </div>
+    
+    <footer>
+      <p>WebContentExtractor &copy; 2023</p>
+    </footer>
+  </div>
+  
+  <!-- Import/Export Dialog -->
+  <div id="importDialog" class="dialog hidden">
+    <div class="dialog-content">
+      <h2>Import Rules</h2>
+      <p>Paste your exported rules JSON below:</p>
+      <textarea id="importText" rows="10"></textarea>
+      <div class="dialog-actions">
+        <button id="cancelImportBtn" class="btn secondary">Cancel</button>
+        <button id="confirmImportBtn" class="btn primary">Import</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
