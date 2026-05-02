@@ -1,21 +1,33 @@
 {
   "manifest_version": 3,
-  "name": "WebContentExtractor",
-  "version": "1.0",
-  "description": "Extract main content blocks from web pages",
+  "name": "WebContentExtractor - 网页内容提取器",
+  "version": "2.0.0",
+  "description": "智能提取网页主要内容，支持手动选择、规则管理、富文本复制等功能",
+  "author": "WebContentExtractor Team",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    },
+    "default_title": "WebContentExtractor"
+  },
   "permissions": [
     "activeTab",
     "storage",
-    "clipboardWrite"
+    "scripting",
+    "clipboardWrite",
+    "downloads",
+    "contextMenus"
   ],
-  "action": {
-    "default_popup": "popup/popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -23,13 +35,25 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ],
-  "options_page": "options/options.html",
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+  "options_page": "options.html",
+  "commands": {
+    "extract-content": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "提取当前页面内容"
+    },
+    "manual-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "mac": "Command+Shift+M"
+      },
+      "description": "进入手动选择模式"
+    }
   }
 }

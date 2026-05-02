@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebContentExtractor - 设置</title>
+  <link rel="stylesheet" href="styles/options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="options-header">
+      <div class="header-content">
+        <span class="logo">📄</span>
+        <h1>WebContentExtractor 设置</h1>
+      </div>
+      <nav class="header-nav">
+        <button class="nav-btn active" data-tab="general">常规设置</button>
+        <button class="nav-btn" data-tab="rules">规则管理</button>
+        <button class="nav-btn" data-tab="advanced">高级设置</button>
+        <button class="nav-btn" data-tab="about">关于</button>
+      </nav>
+    </header>
+
+    <main class="options-main">
+      <section class="tab-content active" id="tab-general">
+        <div class="section-card">
+          <h2 class="section-title">提取设置</h2>
+          
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">默认复制格式</label>
+              <select id="defaultFormat" class="field-select">
+                <option value="html">富文本 (HTML)</option>
+                <option value="text">纯文本</option>
+                <option value="markdown">Markdown</option>
+              </select>
+              <p class="field-hint">选择提取内容后默认使用的复制格式</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="autoExtract">
+                <span class="checkbox-custom"></span>
+                <span class="label-text">自动提取页面内容</span>
+              </label>
+              <p class="field-hint">页面加载完成后自动提取主要内容</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="autoCopy" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">提取后自动复制到剪贴板</span>
+              </label>
+              <p class="field-hint">内容提取成功后自动复制到剪贴板</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="showHighlights" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">高亮显示提取区域</span>
+              </label>
+              <p class="field-hint">提取内容时在页面上高亮显示选中的区域</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="section-title">内容过滤</h2>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="removeAds" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">移除广告元素</span>
+              </label>
+              <p class="field-hint">自动识别并移除页面中的广告和推广内容</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="preserveLinks" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">保留链接</span>
+              </label>
+              <p class="field-hint">在富文本格式中保留原始超链接</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="preserveImages" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">保留图片</span>
+              </label>
+              <p class="field-hint">在富文本格式中保留原始图片</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="cleanEmptyLines" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">清理空行</span>
+              </label>
+              <p class="field-hint">自动清理多余的空行和空白字符</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="normalizeWhitespace" checked>
+                <span class="checkbox-custom"></span>
+                <span class="label-text">规范化空白字符</span>
+              </label>
+              <p class="field-hint">将多个连续空白字符替换为单个空格</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="section-title">通知设置</h2>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">提示显示时长 (毫秒)</label>
+              <input type="number" id="toastDuration" class="field-input" value="3000" min="1000" max="10000" step="500">
+              <p class="field-hint">设置操作成功/失败提示的显示时间</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tab-rules">
+        <div class="section-card">
+          <div class="section-header">
+            <h2 class="section-title">站点规则管理</h2>
+            <div class="section-actions">
+              <button class="btn btn-secondary" id="btnImportRules">
+                <span class="btn-icon">📥</span>
+                <span>导入规则</span>
+              </button>
+              <button class="btn btn-secondary" id="btnExportRules">
+                <span class="btn-icon">📤</span>
+                <span>导出规则</span>
+              </button>
+              <button class="btn btn-danger" id="btnClearAllRules">
+                <span class="btn-icon">🗑️</span>
+                <span>清空规则</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="rules-filter">
+            <input type="text" id="rulesSearch" class="search-input" placeholder="搜索站点规则...">
+          </div>
+
+          <div class="rules-list-container" id="rulesListContainer">
+            <div class="empty-state" id="rulesEmptyState">
+              <div class="empty-icon">📋</div>
+              <p class="empty-text">暂无保存的规则</p>
+              <p class="empty-hint">访问网页时可以手动选择内容并保存规则</p>
+            </div>
+            <div class="rules-list" id="rulesList" style="display: none;"></div>
+          </div>
+        </div>
+
+        <div class="section-card" id="ruleEditorCard" style="display: none;">
+          <div class="section-header">
+            <h2 class="section-title" id="ruleEditorTitle">编辑规则</h2>
+            <button class="btn-text" id="btnCloseRuleEditor">返回列表</button>
+          </div>
+          
+          <form id="ruleEditorForm">
+            <input type="hidden" id="ruleEditId">
+            
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">站点域名</label>
+                <input type="text" id="ruleDomain" class="field-input" placeholder="例如: example.com">
+                <p class="field-hint">规则适用的网站域名（不包含协议和路径）</p>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">规则名称</label>
+                <input type="text" id="ruleName" class="field-input" placeholder="输入规则名称">
+                <p class="field-hint">给这个规则起一个容易识别的名字</p>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">选择器类型</label>
+                <select id="ruleSelectorType" class="field-select">
+                  <option value="xpath">XPath</option>
+                  <option value="css">CSS 选择器</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">选择器表达式</label>
+                <textarea id="ruleSelector" class="field-textarea" rows="3" placeholder="例如: //article 或 .content"></textarea>
+                <p class="field-hint">用于定位内容区域的 XPath 或 CSS 选择器</p>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="ruleIsDefault">
+                  <span class="checkbox-custom"></span>
+                  <span class="label-text">设为默认规则</span>
+                </label>
+                <p class="field-hint">访问该站点时自动使用此规则</p>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">规则描述 (可选)</label>
+                <textarea id="ruleDescription" class="field-textarea" rows="2" placeholder="描述这个规则的用途..."></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="btnCancelRuleEdit">取消</button>
+              <button type="submit" class="btn btn-primary" id="btnSaveRule">保存规则</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tab-advanced">
+        <div class="section-card">
+          <h2 class="section-title">提取算法</h2>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">最小文本长度</label>
+              <input type="number" id="minTextLength" class="field-input" value="200" min="50" max="2000">
+              <p class="field-hint">识别为主要内容区块所需的最少文本字符数</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">文本密度阈值</label>
+              <input type="number" id="textDensityThreshold" class="field-input" value="25" min="10" max="80">
+              <p class="field-hint">文本内容与HTML标签的比例阈值 (%)</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">提取超时 (毫秒)</label>
+              <input type="number" id="extractTimeout" class="field-input" value="5000" min="1000" max="30000" step="500">
+              <p class="field-hint">内容提取操作的超时时间</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="enableLazyLoadDetection">
+                <span class="checkbox-custom"></span>
+                <span class="label-text">启用懒加载检测</span>
+              </label>
+              <p class="field-hint">自动检测并处理懒加载内容（可能影响性能）</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="checkbox-label">
+                <input type="checkbox" id="enableDynamicContent">
+                <span class="checkbox-custom"></span>
+                <span class="label-text">启用动态内容监控</span>
+              </label>
+              <p class="field-hint">监控页面DOM变化并更新提取内容</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h2 class="section-title">自定义选择器排除</h2>
+          <p class="section-description">
+            配置在提取内容时要排除的元素选择器。这些选择器匹配的元素将被自动忽略。
+          </p>
+
+          <div class="exclude-list-container">
+            <div class="exclude-list" id="excludeList">
+            </div>
+            <div class="exclude-add-row">
+              <input type="text" id="newExcludeSelector" class="field-input" placeholder="输入 CSS 选择器...">
+              <button class="btn btn-secondary" id="btnAddExclude">添加</button>
+            </div>
+          </div>
+
+          <p class="field-hint" style="margin-top: 12px;">
+            预设排除项: .advertisement, .ad, .sidebar, #comments, nav, footer, aside
+          </p>
+        </div>
+
+        <div class="section-card">
+          <h2 class="section-title">数据管理</h2>
+
+          <div class="form-row">
+            <div class="form-field">
+              <button class="btn btn-secondary" id="btnExportAllData">
+                <span class="btn-icon">📤</span>
+                <span>导出所有配置</span>
+              </button>
+              <p class="field-hint">导出所有规则、设置和偏好到文件</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <button class="btn btn-secondary" id="btnImportAllData">
+                <span class="btn-icon">📥</span>
+                <span>导入配置文件</span>
+              </button>
+              <p class="field-hint">从文件导入规则、设置和偏好</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <button class="btn btn-danger" id="btnResetAll">
+                <span class="btn-icon">🔄</span>
+                <span>重置为默认值</span>
+              </button>
+              <p class="field-hint">清除所有规则并恢复默认设置</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-content" id="tab-about">
+        <div class="section-card">
+          <div class="about-header">
+            <div class="about-logo">📄</div>
+            <h2 class="about-title">WebContentExtractor</h2>
+            <p class="about-version">版本 2.0.0</p>
+          </div>
+
+          <div class="about-content">
+            <h3>关于本扩展</h3>
+            <p>
+              WebContentExtractor 是一个强大的网页内容提取工具，能够智能识别并提取网页中的主要内容，
+              帮助您快速获取所需信息，避免广告和无关内容的干扰。
+            </p>
+
+            <h3>主要功能</h3>
+            <ul class="feature-list">
+              <li><span class="feature-icon">🎯</span> 智能内容识别 - 自动分析网页结构，识别主要内容区块</li>
+              <li><span class="feature-icon">👆</span> 手动选择 - 精确选择需要提取的内容区域</li>
+              <li><span class="feature-icon">📋</span> 规则管理 - 为不同网站保存自定义提取规则</li>
+              <li><span class="feature-icon">📝</span> 多格式支持 - 支持富文本、纯文本、Markdown格式</li>
+              <li><span class="feature-icon">💾</span> 导出功能 - 支持导出为HTML、TXT、MD文件</li>
+            </ul>
+
+            <h3>技术支持</h3>
+            <p>
+              如果您在使用过程中遇到任何问题，或有功能建议，欢迎通过以下方式联系我们。
+            </p>
+          </div>
+
+          <div class="about-actions">
+            <button class="btn btn-secondary" id="btnViewChangelog">查看更新日志</button>
+            <button class="btn btn-secondary" id="btnOpenShortcuts">快捷键说明</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="options-footer">
+      <p>© 2024 WebContentExtractor. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+  <div class="modal" id="confirmModal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="confirmModalTitle">确认操作</h3>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMessage">确定要执行此操作吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnConfirmCancel">取消</button>
+        <button class="btn btn-danger" id="btnConfirmOk">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
