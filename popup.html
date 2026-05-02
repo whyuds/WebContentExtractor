@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebContentExtractor - 网页内容提取器</title>
+  <link rel="stylesheet" href="styles/popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="header-title">
+        <span class="icon">📄</span>
+        <h1>网页内容提取器</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="btnSettings" title="设置">⚙️</button>
+      </div>
+    </header>
+
+    <main class="popup-main">
+      <div class="page-info" id="pageInfo">
+        <p class="page-title" id="pageTitle">正在加载...</p>
+        <p class="page-url" id="pageUrl"></p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="btnExtract">
+          <span class="btn-icon">🔍</span>
+          <span>智能提取</span>
+        </button>
+        <button class="btn btn-secondary" id="btnManual">
+          <span class="btn-icon">👆</span>
+          <span>手动选择</span>
+        </button>
+      </div>
+
+      <div class="format-options" id="formatOptions">
+        <label class="format-label">复制格式:</label>
+        <div class="format-buttons">
+          <button class="btn-format active" data-format="html" title="富文本格式">
+            <span class="format-icon">📝</span>
+            <span>富文本</span>
+          </button>
+          <button class="btn-format" data-format="text" title="纯文本格式">
+            <span class="format-icon">📃</span>
+            <span>纯文本</span>
+          </button>
+          <button class="btn-format" data-format="markdown" title="Markdown格式">
+            <span class="format-icon">📋</span>
+            <span>MD</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="quick-actions" id="quickActions" style="display: none;">
+        <div class="section-header">
+          <h3>快速操作</h3>
+        </div>
+        <div class="action-grid">
+          <button class="quick-action" id="btnCopyContent">
+            <span class="action-icon">📋</span>
+            <span class="action-label">复制内容</span>
+          </button>
+          <button class="quick-action" id="btnDownload">
+            <span class="action-icon">💾</span>
+            <span class="action-label">导出文件</span>
+          </button>
+          <button class="quick-action" id="btnSaveRule">
+            <span class="action-icon">📌</span>
+            <span class="action-label">保存规则</span>
+          </button>
+          <button class="quick-action" id="btnClearFormat">
+            <span class="action-icon">🧹</span>
+            <span class="action-label">清理格式</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="rules-section" id="rulesSection" style="display: none;">
+        <div class="section-header">
+          <h3>站点规则</h3>
+          <button class="btn-text" id="btnManageRules">管理</button>
+        </div>
+        <div class="rules-list" id="rulesList">
+          <p class="no-rules">暂无规则</p>
+        </div>
+      </div>
+
+      <div class="status-panel" id="statusPanel" style="display: none;">
+        <div class="status-message" id="statusMessage"></div>
+        <div class="status-progress" id="statusProgress" style="display: none;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="progress-text" id="progressText">0%</span>
+        </div>
+      </div>
+
+      <div class="selection-mode-indicator" id="selectionModeIndicator" style="display: none;">
+        <div class="indicator-content">
+          <span class="indicator-icon">🎯</span>
+          <span class="indicator-text">手动选择模式已激活</span>
+          <button class="btn-cancel" id="btnCancelSelection">取消</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="popup-footer">
+      <div class="footer-links">
+        <a href="#" id="linkOptions">高级设置</a>
+        <span class="divider">|</span>
+        <a href="#" id="linkHelp">帮助</a>
+      </div>
+      <div class="version-info">v2.0.0</div>
+    </footer>
+  </div>
+
+  <div class="modal" id="ruleModal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>保存提取规则</h3>
+        <button class="btn-close" id="btnCloseModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="ruleName">规则名称</label>
+          <input type="text" id="ruleName" class="form-input" placeholder="输入规则名称">
+        </div>
+        <div class="form-group">
+          <label for="ruleSelector">选择器 (XPath/CSS)</label>
+          <input type="text" id="ruleSelector" class="form-input" placeholder="例如: //article 或 .content">
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="ruleIsDefault" checked>
+            <span>设为默认规则</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelSaveRule">取消</button>
+        <button class="btn btn-primary" id="btnConfirmSaveRule">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="exportModal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>导出内容</h3>
+        <button class="btn-close" id="btnCloseExportModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="exportFormat">导出格式</label>
+          <select id="exportFormat" class="form-select">
+            <option value="txt">纯文本 (.txt)</option>
+            <option value="html">HTML (.html)</option>
+            <option value="md">Markdown (.md)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="exportFilename">文件名</label>
+          <input type="text" id="exportFilename" class="form-input" placeholder="content">
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="exportIncludeTitle" checked>
+            <span>包含页面标题</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="exportIncludeUrl" checked>
+            <span>包含来源URL</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnCancelExport">取消</button>
+        <button class="btn btn-primary" id="btnConfirmExport">导出</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
