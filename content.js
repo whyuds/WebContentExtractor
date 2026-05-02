@@ -115,34 +115,233 @@ const Utils = {
   },
 
   async copyToClipboard(content) {
-    try {
-      const textContent = typeof content === 'string' ? content : (content.text || content.html || '');
+    const textContent = typeof content === 'string' ? content : (content.text || content.html || '');
+    const htmlContent = typeof content === 'string' ? null : content.html;
+    
+    console.group('[WebContentExtractor] Copy to Clipboard');
+    console.log('Text length:', textContent?.length);
+    console.log('Has HTML:', !!htmlContent);
+    
+    let result = false;
+    let errorInfo = null;
+    
+    // 策略1: Async Clipboard API with multiple formats (preferred)
+    if (navigator.clipboard && window.ClipboardItem) {
+      console.log('Strategy 1: Async Clipboard API (ClipboardItem)');
       
-      if (navigator.clipboard && window.ClipboardItem) {
-        const items = {};
-        
-        if (content.html) {
-          items['text/html'] = new Blob([content.html], { type: 'text/html' });
+      try {
+        if (htmlContent) {
+          console.log('Trying with text/html + text/plain');
+          const items = {
+            'text/plain': new Blob([textContent], { type: 'text/plain' })
+          };
+          
+          try {
+            items['text/html'] = new Blob([htmlContent], { type: 'text/html' });
+          } catch (blobErr) {
+            console.warn('Could not create HTML blob:', blobErr);
+          }
+          
+          await navigator.clipboard.write([new ClipboardItem(items)]);
+          console.log('SUCCESS: ClipboardItem with multi-format');
+          result = true;
+        } else {
+          console.log('Trying with text/plain only (ClipboardItem)');
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              'text/plain': new Blob([textContent], { type: 'text/plain' })
+            })
+          ]);
+          console.log('SUCCESS: ClipboardItem with text/plain');
+          result = true;
         }
-        items['text/plain'] = new Blob([textContent], { type: 'text/plain' });
         
-        await navigator.clipboard.write([new ClipboardItem(items)]);
-        return true;
-      } else {
+      } catch (error1) {
+        errorInfo = {
+          step: 'ClipboardItem',
+          name: error1.name,
+          message: error1.message,
+          stack: error1.stack
+        };
+        
+        console.warn('Strategy 1 FAILED:', error1.name, '-', error1.message);
+        console.log('Possible reason:');
+        console.log('  - NotAllowedError: 需要用户手势或权限被阻止');
+        console.log('  - SecurityError: 不在安全上下文(HTTPS/localhost)');
+        console.log('  - NotSupportedError: 浏览器不支持该数据类型');
+        
+        // 策略1b: 尝试 writeText 作为备选
+        if (navigator.clipboard.writeText) {
+          console.log('');
+          console.log('Strategy 1b: clipboard.writeText (fallback)');
+          
+          try {
+            await navigator.clipboard.writeText(textContent);
+            console.log('SUCCESS: writeText (plain text only)');
+            result = true;
+            errorInfo = null;
+          } catch (error1b) {
+            console.warn('Strategy 1b FAILED:', error1b.name, '-', error1b.message);
+          }
+        }
+      }
+    }
+    
+    // 策略2: execCommand('copy') with textarea
+    if (!result) {
+      console.log('');
+      console.log('Strategy 2: execCommand with textarea (legacy)');
+      
+      try {
         const textarea = document.createElement('textarea');
         textarea.value = textContent;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
+        textarea.style.cssText = `
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 1px !important;
+          height: 1px !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          border: none !important;
+          outline: none !important;
+          boxShadow: none !important;
+          background: transparent !important;
+          opacity: 0 !important;
+          z-index: -9999 !important;
+          pointer-events: none !important;
+        `;
+        textarea.setAttribute('readonly', 'readonly');
+        textarea.setAttribute('aria-hidden', 'true');
+        
         document.body.appendChild(textarea);
+        
+        const range = document.createRange();
+        const selection = window.getSelection();
+        
+        textarea.focus();
         textarea.select();
-        document.execCommand('copy');
+        textarea.setSelectionRange(0, textContent.length);
+        
+        // 清除任何已有的选区
+        if (selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+        
+        const success = document.execCommand('copy');
+        
+        if (selection) {
+          selection.removeAllRanges();
+        }
+        
         document.body.removeChild(textarea);
-        return true;
+        
+        if (success) {
+          console.log('SUCCESS: execCommand copy');
+          result = true;
+          errorInfo = null;
+        } else {
+          console.warn('Strategy 2 FAILED: execCommand returned false');
+        }
+        
+      } catch (error2) {
+        console.warn('Strategy 2 FAILED:', error2.name, '-', error2.message);
       }
-    } catch (error) {
-      console.error('[WebContentExtractor] Copy failed:', error);
-      return false;
     }
+    
+    // 策略3: 创建临时可编辑元素
+    if (!result) {
+      console.log('');
+      console.log('Strategy 3: execCommand with contentEditable (last resort)');
+      
+      try {
+        const tempDiv = document.createElement('div');
+        
+        if (htmlContent) {
+          tempDiv.innerHTML = htmlContent;
+        } else {
+          tempDiv.textContent = textContent;
+        }
+        
+        tempDiv.style.cssText = `
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          z-index: -9999 !important;
+        `;
+        
+        tempDiv.setAttribute('contentEditable', 'true');
+        document.body.appendChild(tempDiv);
+        
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        
+        const success = document.execCommand('copy');
+        
+        if (selection) {
+          selection.removeAllRanges();
+        }
+        
+        document.body.removeChild(tempDiv);
+        
+        if (success) {
+          console.log('SUCCESS: contentEditable copy');
+          result = true;
+          errorInfo = null;
+        } else {
+          console.warn('Strategy 3 FAILED: execCommand returned false');
+        }
+        
+      } catch (error3) {
+        console.warn('Strategy 3 FAILED:', error3.name, '-', error3.message);
+      }
+    }
+    
+    // 最终结果
+    console.log('');
+    console.log('=====================');
+    console.log('COPY RESULT:', result ? 'SUCCESS' : 'FAILED');
+    
+    if (errorInfo) {
+      console.log('Last error info:');
+      console.dir(errorInfo);
+      
+      // 显示更有意义的错误提示
+      let userMessage = '复制到剪贴板失败';
+      let hint = '';
+      
+      switch (errorInfo.name) {
+        case 'NotAllowedError':
+          hint = '浏览器阻止了剪贴板访问。请尝试手动复制。';
+          break;
+        case 'SecurityError':
+          hint = '当前页面不是安全上下文(HTTPS)。';
+          break;
+        case 'NotSupportedError':
+          hint = '浏览器不支持此操作。';
+          break;
+        case 'InvalidStateError':
+          hint = '当前未处于用户交互上下文中。';
+          break;
+        default:
+          hint = errorInfo.message || '未知错误';
+      }
+      
+      console.log('');
+      console.log('User Hint:', hint);
+    }
+    
+    console.groupEnd();
+    
+    return result;
   },
 
   getElementByXPath(xpath) {

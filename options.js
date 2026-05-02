@@ -239,15 +239,45 @@ async function saveConfig() {
 
 async function loadRules() {
   try {
-    allRules = await chrome.runtime.sendMessage({ action: 'getAllRules' });
+    console.log('[Options] Loading rules...');
+    const response = await chrome.runtime.sendMessage({ action: 'getAllRules' });
+    
+    console.log('[Options] Rules response:', response);
+    
+    if (response && response.success === false) {
+      console.error('[Options] getRules returned error:', response.error);
+      allRules = {};
+      showToast('加载规则失败: ' + response.error, 'error');
+    } else if (response && typeof response === 'object' && response !== null) {
+      const isDomainKeyed = Object.values(response).every(val => 
+        Array.isArray(val) || (val && val.success === undefined)
+      );
+      
+      if (isDomainKeyed || Object.keys(response).length === 0) {
+        allRules = response;
+      } else {
+        console.warn('[Options] Unexpected response format, using empty rules:', response);
+        allRules = {};
+      }
+    } else {
+      console.warn('[Options] Invalid response, using empty rules');
+      allRules = {};
+    }
+    
+    console.log('[Options] Final allRules:', allRules);
     renderRulesList();
+    
   } catch (error) {
     console.error('[Options] Failed to load rules:', error);
+    allRules = {};
+    renderRulesList();
   }
 }
 
 function renderRulesList(filterText = '') {
   const domains = Object.keys(allRules);
+  
+  console.log('[Options] renderRulesList - domains:', domains);
   
   if (domains.length === 0) {
     elements.rulesEmptyState.style.display = 'block';
@@ -261,9 +291,20 @@ function renderRulesList(filterText = '') {
   for (const domain of domains) {
     const rules = allRules[domain];
     
+    console.log(`[Options] Domain: ${domain}, rules:`, rules);
+    
+    if (!Array.isArray(rules)) {
+      console.warn(`[Options] Skipping domain ${domain}, rules is not an array:`, rules);
+      continue;
+    }
+    
     const domainMatches = filterText === '' || domain.toLowerCase().includes(filterText.toLowerCase());
     
     for (const rule of rules) {
+      if (!rule || typeof rule !== 'object') {
+        console.warn(`[Options] Skipping invalid rule in ${domain}:`, rule);
+        continue;
+      }
       const ruleMatches = filterText === '' || 
         domain.toLowerCase().includes(filterText.toLowerCase()) ||
         rule.name.toLowerCase().includes(filterText.toLowerCase()) ||
